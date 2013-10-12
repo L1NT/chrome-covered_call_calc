@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Covered Call Calculator</title>
+    <link rel="stylesheet" type="text/css" href="main.css" />
+    
+    <!--
+      - JavaScript and HTML must be in separate files: see our Content Security
+      - Policy documentation[1] for details and explanation.
+      -
+      - [1]: http://developer.chrome.com/extensions/contentSecurityPolicy.html
+     -->
+    <script src="jquery-1.8.2.min.js"></script>
+    <script src="popup.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Covered Call Calculator</h1>
+    </header>
+    
+    <nav>
+      <ul>
+        <li id="calc">Calc</li>
+        <li id="expire">Expirations</li>
+        <li id="options">Options</li>
+        <li id="about">About</li>
+      </ul>
+    </nav>
+    
+    <!-- Calc Tab -->
+    <section class="calc tab">
+      <label class="ticker" for="ticker">Ticker Symbol: </label><input class="ticker" name="ticker" placeholder="ex. XYZ" /><br />
+      <label for="stock_price">Stock Price: $</label><input name="stock_price" placeholder="0.00"/><br />
+      <label for="strike_price">Call Strike Price: $</label><input name="strike_price" placeholder="0.00" /><br />
+      <select name="call_date"></select><br />
+      <label for="premium">Premium: </label><input type="text" name="premium" placeholder="0.00" /><br />
+      <label for="contracts">Number of Contracts: </label><input type="text" name="contracts" placeholder="1" /><br />  
+      <label for="option_commission">Commission and Fees for the sale of options(s): </label><input class="commissions" name="option_commission" placeholder="0.00" /><br />
+      <label for="assigned_commission">Commission and Fees for the sale of underlying stock, if option is assigned: </label><input class="commissions" name="assigned_commission" placeholder="0.00" /><br />
+      <div class="button_row">
+        <input type="button" value="Calculate" /><input type="button" value="Add to List" />
+      </div>
+      <hr />
+      <div id="results">
+        Call Option(s) Short-Sale Income: <span id="call_income">$0.00</span><br />
+        Annualized Return: <span id="call_annualized">0.00%</span><br />
+        <br />
+        Total Profit, if Option(s) is assigned: <span id="total_income">$0.00</span><br />
+        Annualized Return, if assigned: <span id="total_annualized">0.00%</span>
+      </div>
+    </section>
+      
+    <!-- Expiration/Assignment Tab -->
+    <section class="expire tab">
+      <table>
+        <thead>
+          <td>Symbol</td>
+          <td>Current Price</td>
+          <td>Strike Price</td>
+          <td>Expiration</td>
+        </thead>
+        <tbody>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tbody>
+      </table>
+    </section>
+    
+    <section class="options tab">
+      <h3>Settings</h3>
+      <input id="calc_fees" type="checkbox" />Calculate commissions &amp; fees<br />
+      <hr />
+      <form name="settings">
+        <h4>For short sale of option(s):</h4>
+        <section class="calc">
+          <label>Transaction fee: $</label><input type="text" class="commissions" name="option_transaction" placeholder="0.00" /><br />
+          <label>Fee per contract: $</label><input type="text" class="commissions" name="option_per_contract" placeholder="0.00" /><br />
+          <label>Calculate and include SEC fee?:</label><input type="checkbox" name="option_sec_fee" checked /><br />
+        </section>
+        <br />
+        <h4>For sale of underlying security if option(s) is assigned:</h4>
+        <section class="calc">
+          <label>Transaction fee for sale: $</label><input type="text" class="commissions" name="assigned_transaction" placeholder="0.00" /><br />
+          <label>Fee per share of stock: $</label><input type="text" class="commissions" name="assigned_per_share" placeholder="0.00" /><br />
+          <label>Calculate and include SEC fee?:</label><input type="checkbox" name="stock_sec_fee" checked /><br />
+        </section>
+      </form>
+    </section>
+    
+    <section class="about tab">
+      <h3>FAQs</h3>
+      <section id="faq">
+        <details>
+          <summary>What is a "Covered Call"?</summary>
+          <a href="http://lmgtfy.org?q=covered+call">lmgtfy</a>
+        </details>
+        <details>
+          <summary>What is Covered Call Calculator?</summary>
+          This is a simple tool used to calculate returns on <a href="http://wikipedia.org/">covered call option short sales</a>.
+        </details>
+        <details>
+          <summary>Why did you create it?</summary>
+          The reason is twofold: <strong>first</strong>, this browser-based version is more convenient and robust then the Android version I've previously written (both of which are more consistant and reliable than the random spreadsheets I was using prior to these  projects), and <strong>second</strong> I was motivated to learn about Chrome Extension development and this provided an easy [but useful] way of learning new skills.
+        </details>
+        <details>
+          <summary>How can I contribute?</summary>
+          <a href="#contribute">See below.</a>
+        </details>
+        <details>
+          <summary>Where can I get help?</summary>
+          <details>
+            <summary>Calc Tab</summary>
+            Ticker Symbol: <br />
+            Stock Price: <br />
+          </details>
+          <details>
+            <summary>Expirations Tab</summary>
+            This tab contains a table view of any expiring options positions. Any options that have expired will be in <span class="neg">red</span>, and an alert will pop up notifying you they've expired.<br />
+          </details>
+          <details>
+            <summary>Settings Tab</summary>
+            This tab allows the user to enter pre-defined commission information that will then be calculated, rather than having to enter this information on the main Calc tab.<br />
+            
+          </details>
+        </details>
+      </section>
+      
+      <h3>How To Contribute</h3>
+      <section id="contribute">
+        <ul>
+          <li>If you find this extension useful and wish to say 'thank you', please consider buying me a cup of coffee: [paypal donation button]</li>
+          <li>If you have a suggestion, comment, or bug report, please send me an <a href="mailto:luke.jeter@gmail.com?subject=Covered Call Calc feedback">email</a>.</li>
+          <li>If you '<strong>think my extension is great</strong>' and have a plan to '<strong>market it to the largest extension-using audience</strong>' which will '<strong>make me millions</strong>', please leave me alone.</li>
+          <li>If you think my idea is good but the execution sucks compared to what you could do, <a href="https://github.com/L1NT/chrome-covered-call-calc">download the source code</a> and make it better! (Feel free to submit pull requests, bug reports, and feature requests via Github; any contributions will be recognized here.)</li>
+        </ul>
+      </section>
+
+    </section>
+    
+  </body>
+</html>
+

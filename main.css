@@ -1,0 +1,70 @@
+body {
+  min-width: 357px;
+}
+
+h1 {
+  text-align: center;
+}
+
+h3 {
+  text-align: center;
+}
+
+h4 {
+  margin: 0px;
+}
+
+nav {
+  /* why can't i find a way for this to wrap children? */
+  height: 28px;
+}
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+nav li {
+  float: left;
+  height: 15px;
+  width: 75px;
+}
+  nav li.inactive {
+    background: #4C015F;
+    color: #FFFFFF;
+  }
+
+li, .tab {
+  border: 2px solid #000;
+  border-radius: 5px;
+  background: #C582D6;
+  padding: 5px;
+}
+
+div.button_row {
+  align-contents: center;
+}
+
+section.calc {
+  text-align: right;
+  padding: 10px;
+}
+  section.calc span {
+    min-width: 50px;
+    background-color: #FFFFFF;
+    border-radius: 3px;
+    display: inline-block;
+    margin: 2px;
+  }
+  section.calc span.pos {
+    background-color: palegreen;
+    color: green;
+  }
+  section.calc span.neg {
+    background-color: palevioletred;
+    color: red;
+  }
+
+label {
+  padding: 3px;
+  margin: 2px;
+}

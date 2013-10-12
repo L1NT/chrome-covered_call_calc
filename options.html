@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Covered Call Calculator Options</title>
+    <link type="text/css" src="main.css" />
+    <script type="text/javascript" src="options.js"></script>
+  </head>
+  
+  <body>
+    <h1>Covered Call Calculator</h1>
+    
+    <section id="description">
+      What is Covered Call Calculator?
+    </section>
+    
+    <section id="support_me">
+      <ul>
+        <li>If you find this extension useful and wish to say 'thank you', please consider buying me a cup of coffee: [paypal donation button]</li>
+        <li>If you have a suggestion, comment, or bug report, please send me an <a href="mailto:luke.jeter@gmail.com?subject=Covered Call Calc feedback">email</a>.</li>
+        <li>If you 'think my ext is great' and have a plan to 'market it to the largest extension-using audience' which will 'make me millions', please leave me alone.</li>
+        <li>If you think my idea is good but the execution sucks compared to what you could do, <a href="https://github.com/L1NT/chrome-covered-call-calc">download the source code</a> and make it better! (Feel free to submit pull requests, bug reports, and feature requests via Github; any contributions will be recognized here.)</li>
+      </ul>
+    </section>
+    
+    <section id="options">
+      <form name="options">
+        <input type="checkbox">Calculate commissions &amp; fees</input>
+        Transaction fee: $<input type="text" class="commissions" name="option_transaction" placeholder="0.00" />
+        Fee per contract: $<input type="text" class="commissions" name="option_per_contract" placeholder="0.00" />
+        Include SEC fee?:<input type="checkbox" name="option_sec_fee" checked />
+        <br />
+        Transaction fee for stock sale, if option is assigned: $<input type="text" class="commissions" name="assigned_transaction" placeholder="0.00" />
+        Fee per share of stock, if option is assigned: $<input type="text" class="commissions" name="assigned_per_share" placeholder="0.00" />
+        Include SEC fee?:<input type="checkbox" name="stock_sec_fee" checked />
+      </form>
+    </section>
+    
+  </body>
+</html>

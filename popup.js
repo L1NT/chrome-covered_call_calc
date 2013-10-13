@@ -35,7 +35,7 @@ var covered_call_calc = {
       $('input.commissions').attr('readonly', 'readonly');
     }
 
-    $('li').bind('click', function(event) {
+    $('nav li').bind('click', function(event) {
       var jqTarget = $(event.currentTarget);
       jqTarget.removeClass('inactive');
       jqTarget.siblings('li').addClass('inactive');
@@ -47,7 +47,7 @@ var covered_call_calc = {
       });
     });
     $('li#calc').trigger('click');
-        
+            
     $('input').bind('change', function(event) {
       var jq_input = $(event.currentTarget);
       var value = parseFloat(jq_input.val());
@@ -55,6 +55,30 @@ var covered_call_calc = {
       jq_input.val(covered_call_calc.round(value));
       covered_call_calc.calculate();
       return false;
+    });
+    
+    $('input.ticker').unbind('change').bind('change', function(){
+      $(this).removeClass('neg');
+      if (this.value != '') {
+        $.ajax({
+          url: 'http://dev.markitondemand.com/Api/Quote/json?symbol=' + this.value,
+          dataType: 'json',
+          success: function(response) {
+            var _price = '';
+            if (response.Data != undefined)
+              _price = response.Data.LastPrice;
+            else {
+              console.log('Error looking up quote: ' + response.Message);
+              $(this).addClass('neg');
+            }
+            $('input[name="stock_price"]').val(_price);
+          },
+          fail: function(response) {
+            console.log('Error looking up quote.');
+          },
+        });
+        this.value = this.value.toUpperCase();
+      }
     });
     
     $('select').bind('change', function(event) {

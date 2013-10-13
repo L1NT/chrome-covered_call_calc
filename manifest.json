@@ -4,10 +4,9 @@
   "name": "Covered Call Calculator (alpha)",
   "description": "This extension calculates returns when selling covered call options.",
   "version": "0.0.1",
-  //"devtools_page": "devtools.html",
 
   "permissions": [
-    "https://finance.yahoo.com/"
+    "http://dev.markitondemand.com/"
   ],
   "browser_action": {
     "default_icon": "icon.png",

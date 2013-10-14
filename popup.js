@@ -19,7 +19,7 @@ var covered_call_calc = {
 
   // methods - only one instance of this class should exists, negating any benefit of using object.prototype for functions
   initialize: function() {
-    // load static options (i.e. transaction fee calculations and )
+    this.restore_state();
     
     this._set_expiration();
     if (this.expiration < Date.now()){
@@ -111,7 +111,8 @@ var covered_call_calc = {
       }
     }).trigger('change');
 
-    $(window).bind('onbeforeunload', function() {
+    $(window).unload(function() {
+      alert('unload');
       this.save_state();
     });
   },
@@ -209,7 +210,16 @@ var covered_call_calc = {
       return a + "." + b;
     }
   },
-  save_state: function() {},
+  restore_state: function() {
+    chrome.storage.sync.get(function(settings) {
+      $('input').each(function() {
+        this.value = settings[$(this).attr('name')];
+      });
+    });
+  },
+  save_state: function(event) {
+    chrome.storage.sync.set($('input'));
+  },
 };
 
 

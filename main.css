@@ -68,3 +68,19 @@ label {
   padding: 3px;
   margin: 2px;
 }
+
+input:disabled {
+  background-color: lightgrey;
+}
+
+table {
+  border: 3px ridge #A0A0A0;
+}
+
+button {
+  height: 25px;
+  width: 75px;
+  margin: 5px 134px 5px 134px;
+  background: #4C015F;
+  color: #FFFFFF;
+}

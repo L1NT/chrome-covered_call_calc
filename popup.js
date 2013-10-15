@@ -19,7 +19,7 @@ var covered_call_calc = {
 
   // methods - only one instance of this class should exists, negating any benefit of using object.prototype for functions
   initialize: function() {
-    this.restore_state();
+    this.restore_storage();
     
     this._set_expiration();
     if (this.expiration < Date.now()){
@@ -30,10 +30,6 @@ var covered_call_calc = {
       this._set_expiration();
     }
     this._populate_months();
-    
-    if (this.calc_fees) {
-      $('input.commissions').attr('readonly', 'readonly');
-    }
 
     $('nav li').bind('click', function(event) {
       var jqTarget = $(event.currentTarget);
@@ -48,7 +44,7 @@ var covered_call_calc = {
     });
     $('li#calc').trigger('click');
             
-    $('input').bind('change', function(event) {
+    $('section.calc input').bind('change', function(event) {
       var jq_input = $(event.currentTarget);
       var value = parseFloat(jq_input.val());
       covered_call_calc[jq_input.attr('name')] = value;
@@ -80,6 +76,27 @@ var covered_call_calc = {
         this.value = this.value.toUpperCase();
       }
     });
+
+    $('input[name="calc_fees"').bind('change', function(event) {
+      console.debug('change event: this.checked='+this.checked); 
+      //TODO: set a breakpoint on the next line and see the value of "this.checked" be different above and below
+      if (this.checked) {
+        $('form[name="settings"] input').removeAttr('disabled');
+        $('section.calc.tab input.commissions').attr('disabled', 'disabled');
+        covered_call_calc.calc_fees = true;
+      }
+      else {
+        $('form[name="settings"] input').attr('disabled', 'disabled');
+        $('section.calc.tab input.commissions').removeAttr('disabled');
+        covered_call_calc.calc_fees = false;
+      }
+    }).trigger('change'); 
+    //TODO: this trigger occurs before the checked state gets set... and we thought javascript was single threaded!
+
+    $('button#save_settings').bind('click', function() {
+      covered_call_calc.save_settings();
+    });
+
     
     $('select').bind('change', function(event) {
       var expire_string = $(this).find('option:selected').text();
@@ -90,32 +107,18 @@ var covered_call_calc = {
     
     //TODO: determine why i can't assign these in the <input[type="button"] onclick
     $('input[type="button"]').bind('click', function(event) {
-      switch ($(this).val()) {
+      switch (this.value) {
         case 'Calculate':
           covered_call_calc.calculate();
           break;
+        case 'Add to List':
+          covered_call_calc.add_to_list();
         default:
           alert('i don\'t work yet');
       }
     });
-    
-    //TODO: set the states of the settings first!!
-    $('input#calc_fees').bind('change', function(event) {
-      if (this.checked) {
-        $('form[name="settings"] input').removeAttr('disabled');
-        covered_call_calc.calc_fees = true;
-      }
-      else {
-        $('form[name="settings"] input').attr('disabled', 'disabled');
-        covered_call_calc.calc_fees = false;
-      }
-    }).trigger('change');
-
-    $(window).unload(function() {
-      alert('unload');
-      this.save_state();
-    });
-  },
+  }, /* end of initialize() */
+ 
   _set_expiration: function(_date) {
     if (typeof _date != 'undefined')
       this.expiration = new Date(_date); //can't believe the ECMAscript spec requires that a sting like this get properly plarsed!
@@ -150,9 +153,33 @@ var covered_call_calc = {
       case 11: return 'December';
     }
   },
-  
-  calculate_fees: function() {},
-  calculate: function() {    
+  add_to_list: function() {
+    $('table.expirations').add($('tr').add($(td).add(this.symbol)
+                                                .add(this.stock_price)
+                                                .add(this.strike_price)
+                                                .add(this.expiration.toLocaleDateString())
+                                              ));
+    this.save_list();
+  },
+  calculate_fees: function() {
+    if (this.calc_fees) {
+      var trans = parseFloat($('input[name="option_transaction"]').val()) || 0;
+      var per_share =  parseFloat($('input[name="option_per_contract"]').val()) || 0;
+      this.option_commission = trans + per_share * this.contracts;
+      if ($('input[name="option_sec_fee"]')[0].checked)
+        this.option_commission += this.SEC_FEE * this.premium * this.contracts * 100;
+      $('input[name="option_commission"]').val(this.round(this.option_commission));
+      
+      trans = parseFloat($('input[name="assigned_transaction"]').val()) || 0;
+      per_share = parseFloat($('input[name="assigned_per_share"]').val()) || 0;
+      this.assigned_commission = trans + per_share * this.contracts;
+      if ($('input[name="stock_sec_fee"]')[0].checked)
+        this.assigned_commission += this.SEC_FEE * this.strike_price * this.contracts * 100;
+      $('input[name="assigned_commission"]').val(this.round(this.assigned_commission));
+    }
+  },
+  calculate: function() {
+    this.calculate_fees();
     var call_income = this.get_call_income();
     var total_income = this.get_total_income();
     
@@ -210,18 +237,48 @@ var covered_call_calc = {
       return a + "." + b;
     }
   },
-  restore_state: function() {
-    chrome.storage.sync.get(function(settings) {
-      $('input').each(function() {
-        this.value = settings[$(this).attr('name')];
-      });
+  restore_storage: function() {
+    chrome.storage.sync.get(function(state) {
+      if (state.settings != undefined) {
+        $('section.settings input').each(function() {
+          switch (this.type) {
+            case 'button':
+              break;
+            case 'checkbox':
+              this.checked = state.settings[this.name];
+              break;
+            default:
+              this.value = state.settings[this.name] || null; 
+          }
+        });
+        covered_call_calc.calc_fees = state.settings.calc_fees;
+      }
+      if (state.expirations != undefined)
+        $('table.expirations tbody').html(state.expirations);
     });
   },
-  save_state: function(event) {
-    chrome.storage.sync.set($('input'));
+  save_settings: function(event) {
+    var settings = {};
+    $('section.settings input').each(function(){
+      switch (this.type) {
+        case 'button':
+          break;
+        case 'checkbox':
+          settings[this.name] = this.checked;
+          break;
+        default:
+          settings[this.name] = this.value;
+      }        
+    });
+    chrome.storage.sync.set({settings:settings});
+    this.calculate();
   },
-};
+  
+  save_list: function() {
+    chrome.storage.sync.set({expirations:$('table#expirations tbody').html()});
+  },
 
+};
 
 
 $(document).ready(function() {  

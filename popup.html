@@ -52,7 +52,7 @@
       
     <!-- Expiration/Assignment Tab -->
     <section class="expire tab">
-      <table>
+      <table id="expirations">
         <thead>
           <td>Symbol</td>
           <td>Current Price</td>
@@ -66,11 +66,13 @@
           <td></td>
         </tbody>
       </table>
+      <hr />
+      <button id="save_settings">Save</button>
     </section>
     
     <section class="settings tab">
       <h3>Settings</h3>
-      <input id="calc_fees" type="checkbox" />Calculate commissions &amp; fees<br />
+      <input name="calc_fees" type="checkbox" />Calculate commissions &amp; fees<br />
       <hr />
       <form name="settings">
         <h4>For short sale of option(s):</h4>
@@ -87,6 +89,8 @@
           <label>Calculate and include SEC fee?:</label><input type="checkbox" name="stock_sec_fee" checked /><br />
         </section>
       </form>
+      <hr />
+      <button id="save_settings">Save</button>
     </section>
     
     <section class="about tab">

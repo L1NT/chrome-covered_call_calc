@@ -55,14 +55,14 @@ section.calc {
     display: inline-block;
     margin: 2px;
   }
-  section.calc span.pos {
-    background-color: palegreen;
-    color: green;
-  }
-  section.calc span.neg {
-    background-color: palevioletred;
-    color: red;
-  }
+.pos {
+  background-color: palegreen;
+  color: green;
+}
+.neg {
+  background-color: palevioletred;
+  color: red;
+}
 
 label {
   padding: 3px;

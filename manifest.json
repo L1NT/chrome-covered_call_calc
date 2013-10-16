@@ -9,9 +9,9 @@
     "storage",
     "http://dev.markitondemand.com/"
   ],
+//  "options_page": "options.html",
   "browser_action": {
     "default_icon": "icon.png",
     "default_popup": "popup.html"
-  },
-  "options_page": "options.html"
+  }
 }

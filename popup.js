@@ -117,10 +117,9 @@ var covered_call_calc = {
       }
     });
     $('table#expirations a.delete').live('click', function(){
-      $(this).closest('tr').remove();
+      $('table#expirations').dataTable().fnRemoveRow($(this).closest('tr'));
       covered_call_calc.saveList();
     });
-    $('table#expirations').dataTable();
   }, /* end of initialize() */
  
   _setExpiration: function(_date) {
@@ -173,14 +172,11 @@ var covered_call_calc = {
     });
   },
   addToList: function() {
-    var newRow = '<tr>';
-    newRow += '<td class="symbol">'+this.symbol+'</td>';
-    newRow += '<td class="stock">'+this.round(this.stock_price)+'</td>';
-    newRow += '<td class="strike">'+this.round(this.strike_price)+'</td>';
-    newRow += '<td class="date">'+this.expiration.toLocaleDateString()+'</td>';
-    newRow += '<td><a class="delete" href="#">delete</a></td>';
-    newRow += '</tr>';
-    $('table#expirations').append(newRow);
+    $('table#expirations').dataTable().fnAddData([this.symbol,
+                                                  this.round(this.stock_price),
+                                                  this.round(this.strike_price),
+                                                  this.expiration.toLocaleDateString(),
+                                                  '<a class="delete" href="#">delete</a>']);
     
     alert('call option saved to expirations list');       
     this.saveList();
@@ -258,24 +254,21 @@ var covered_call_calc = {
         negative = true;
         _d *= -1;
     }
-  
     var a, b;
     _d += .005;
     a = parseInt(_d);
     _d = (_d - a) * 100;
-  
     b = parseInt(_d);
-    
     if (negative) {
-        if (b < 10)
-      return "-" + a + ".0" + b;
-        else
-      return "-" + a + "." + b;
+      if (b < 10)
+        return "-" + a + ".0" + b;
+      else
+        return "-" + a + "." + b;
     } else {
-        if (b < 10)
-      return a + ".0" + b;
-        else
-      return a + "." + b;
+      if (b < 10)
+        return a + ".0" + b;
+      else
+        return a + "." + b;
     }
   },
   restoreStorage: function() {
@@ -331,5 +324,11 @@ $(document).ready(function() {
     // this trigger was originally placed in-line at the initialize() function's bind method occurs before the checked state gets set... and we thought javascript was single threaded!
     $('input[name="calc_fees"').trigger('change'); 
     covered_call_calc.refreshExpireList();
+    $('table#expirations').dataTable({
+      "bSort": true,
+      "aaSorting": [[4,'desc'], [1,'asc']],
+      "bStateSave": true,
+    });
+
     }, '500');
 });

@@ -22,11 +22,12 @@ var covered_call_calc = {
     this.restoreStorage();
     
     this._setExpiration();
-    if (this.expiration < Date.now()){
-      if (this.expiration.getMonth() == 12)
-        this.expiration.setYear(this.expiration.getFullYear()+1);
-      this.expiration.setMonth((this.expiration.getMonth()+1)%12);
-      this.expiration.setDate(1);
+    var _expiration = this.expiration;
+    if (_expiration < Date.now()){
+      if (_expiration.getMonth() == 12)
+        _expiration.setYear(_expiration.getFullYear()+1);
+      _expiration.setMonth((_expiration.getMonth()+1)%12);
+      _expiration.setDate(1);
       this._setExpiration();
     }
     this._populateMonths();
@@ -76,7 +77,6 @@ var covered_call_calc = {
     });
 
     $('input[name="calc_fees"').bind('change', function(event) {
-      console.debug('change event: this.checked='+this.checked); 
       if (this.checked) {
         $('form[name="settings"] input').removeAttr('disabled');
         $('section.calc.tab input.commissions').attr('disabled', 'disabled');
@@ -102,8 +102,6 @@ var covered_call_calc = {
       return false;
     });
     
-    //TODO: determine why i can't assign these in the <input[type="button"] onclick
-    // "Refused to execute inline event handler because it violates the following Content Security Policy directive: "script-src 'self' chrome-extension-resource:"."
     $('input[type="button"]').bind('click', function(event) {
       switch (this.value) {
         case 'Calculate':
@@ -117,7 +115,7 @@ var covered_call_calc = {
       }
     });
     $('table#expirations a.delete').live('click', function(){
-      $('table#expirations').dataTable().fnRemoveRow($(this).closest('tr'));
+      $('table#expirations').dataTable().fnDeleteRow($(this).closest('tr'));
       covered_call_calc.saveList();
     });
   }, /* end of initialize() */
@@ -174,6 +172,7 @@ var covered_call_calc = {
   addToList: function() {
     $('table#expirations').dataTable().fnAddData([this.symbol,
                                                   this.round(this.stock_price),
+                                                  this.round(this.stock_price),
                                                   this.round(this.strike_price),
                                                   this.expiration.toLocaleDateString(),
                                                   '<a class="delete" href="#">delete</a>']);
@@ -189,10 +188,8 @@ var covered_call_calc = {
     $('table#expirations td.symbol').each(function() {
       covered_call_calc.lookupQuote($(this).text(), function(_quote) {
         if (_quote.Data != undefined) {
-          //TODO: lookup the correct Data object attribute!
-          $('table#expirations td.symbol').eq(_quote.Data.Symbol).each(function() {
-//            if ($(this).text() == _quote.Data.Symbol)
-              $(this).siblings('td.stock').text(_quote.Data.LastPrice);
+          $('table#expirations td.symbol:contains('+_quote.Data.Symbol+')').each(function() {
+            $(this).siblings('td.stock').text(_quote.Data.LastPrice);
           });
         }
       });
@@ -316,19 +313,26 @@ var covered_call_calc = {
 };
 
 
-$(document).ready(function() {  
-  covered_call_calc.initialize();
+$(document).ready(function() {
+  var ccc = covered_call_calc;
+  ccc.initialize();
   //TODO: this is a fucking lame fix, and could easily break on a slow machine or with a large amount of storage:
   // when in doubt, set a timeout!!
   setTimeout(function() {
     // this trigger was originally placed in-line at the initialize() function's bind method occurs before the checked state gets set... and we thought javascript was single threaded!
     $('input[name="calc_fees"').trigger('change'); 
-    covered_call_calc.refreshExpireList();
+    ccc.refreshExpireList();
     $('table#expirations').dataTable({
       "bSort": true,
-      "aaSorting": [[4,'desc'], [1,'asc']],
-      "bStateSave": true,
+      "aaSorting": [[4,'desc'],[0,'asc']],
+      //"bStateSave": true,
+      "aoColumns": [
+        { "sClass": "symbol" },
+        { "sClass": "orig" },
+        { "sClass": "stock" },
+        { "sClass": "strike" },
+        { "sClass": "date" },
+        { "sClass": "delete" }],
     });
-
-    }, '500');
+  }, '500');
 });

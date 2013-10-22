@@ -1,5 +1,5 @@
 body {
-  min-width: 357px;
+  width: 508px;
 }
 
 h1 {
@@ -80,7 +80,7 @@ table {
 button {
   height: 25px;
   width: 75px;
-  margin: 5px 134px 5px 134px;
+  margin: 5px 202px 5px 202px;
   background: #4C015F;
   color: #FFFFFF;
 }

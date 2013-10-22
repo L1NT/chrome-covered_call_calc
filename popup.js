@@ -8,6 +8,8 @@ var covered_call_calc = {
   SEC_FEE: .003,
   
   // attributes
+  expirations_table: null,
+  
   calc_fees: false,
   stock_price: 0,
   strike_price: 0,
@@ -115,7 +117,7 @@ var covered_call_calc = {
       }
     });
     $('table#expirations a.delete').live('click', function(){
-      $('table#expirations').dataTable().fnDeleteRow($(this).closest('tr'));
+      covered_call_calc.expirations_table.fnDeleteRow($(this).closest('tr')[0]);
       covered_call_calc.saveList();
     });
   }, /* end of initialize() */
@@ -170,12 +172,12 @@ var covered_call_calc = {
     });
   },
   addToList: function() {
-    $('table#expirations').dataTable().fnAddData([this.symbol,
-                                                  this.round(this.stock_price),
-                                                  this.round(this.stock_price),
-                                                  this.round(this.strike_price),
-                                                  this.expiration.toLocaleDateString(),
-                                                  '<a class="delete" href="#">delete</a>']);
+    this.expirations_table.fnAddData([this.symbol,
+                                      this.round(this.stock_price),
+                                      this.round(this.stock_price),
+                                      this.round(this.strike_price),
+                                      this.expiration.toLocaleDateString(),
+                                      '<a class="delete" href="#">delete</a>']);
     
     alert('call option saved to expirations list');       
     this.saveList();
@@ -269,6 +271,7 @@ var covered_call_calc = {
     }
   },
   restoreStorage: function() {
+    var ccc = covered_call_calc;
     chrome.storage.sync.get(function(state) {
       if (state.settings != undefined) {
         $('section.settings input').each(function() {
@@ -282,10 +285,10 @@ var covered_call_calc = {
               this.value = state.settings[this.name] || null; 
           }
         });
-        covered_call_calc.calc_fees = state.settings.calc_fees;
+        ccc.calc_fees = state.settings.calc_fees;
       }
       if (state.expirations != undefined)
-        $('table#expirations tbody').html(state.expirations);
+        ccc.expirations_table.fnAddData(state.expirations);
     });
   },
   saveSettings: function(event) {
@@ -307,7 +310,9 @@ var covered_call_calc = {
   },
   
   saveList: function() {
-    chrome.storage.sync.set({expirations:$('table#expirations tbody').html()});
+    var data = this.expirations_table.fnGetData();
+    if (data.length != 0)
+      chrome.storage.sync.set({expirations: data});
   },
 
 };
@@ -315,6 +320,18 @@ var covered_call_calc = {
 
 $(document).ready(function() {
   var ccc = covered_call_calc;
+  ccc.expirations_table = $('table#expirations').dataTable({
+      "bSort": true,
+      "aaSorting": [[4,'asc'],[0,'asc']],
+      "bStateSave": true,
+      "aoColumns": [
+        { "sClass": "symbol" },
+        { "sClass": "orig" },
+        { "sClass": "stock" },
+        { "sClass": "strike" },
+        { "sClass": "date" },
+        { "sClass": null }],
+    });
   ccc.initialize();
   //TODO: this is a fucking lame fix, and could easily break on a slow machine or with a large amount of storage:
   // when in doubt, set a timeout!!
@@ -322,17 +339,5 @@ $(document).ready(function() {
     // this trigger was originally placed in-line at the initialize() function's bind method occurs before the checked state gets set... and we thought javascript was single threaded!
     $('input[name="calc_fees"').trigger('change'); 
     ccc.refreshExpireList();
-    $('table#expirations').dataTable({
-      "bSort": true,
-      "aaSorting": [[4,'desc'],[0,'asc']],
-      //"bStateSave": true,
-      "aoColumns": [
-        { "sClass": "symbol" },
-        { "sClass": "orig" },
-        { "sClass": "stock" },
-        { "sClass": "strike" },
-        { "sClass": "date" },
-        { "sClass": "delete" }],
-    });
   }, '500');
 });

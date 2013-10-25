@@ -11,6 +11,7 @@ var covered_call_calc = {
   expirations_table: null,
   
   calc_fees: false,
+  symbol: '',
   stock_price: 0,
   strike_price: 0,
   premium: 0,
@@ -160,16 +161,18 @@ var covered_call_calc = {
    * Is there any way to explicitly indicate that _callback is passed a _price parameter?
    */
   lookupQuote: function(_symbol, _callback) {
-    $.ajax({
-      url: 'http://dev.markitondemand.com/Api/Quote/json?symbol=' + _symbol,
-      dataType: 'json',
-      success: function(_response) {
-        _callback(_response);
-      },
-      fail: function(response) {
-        console.log('Error looking up quote.');
-      },
-    });
+    if (_symbol) {
+      $.ajax({
+        url: 'http://dev.markitondemand.com/Api/Quote/json?symbol=' + _symbol,
+        dataType: 'json',
+        success: function(_response) {
+          _callback(_response);
+        },
+        fail: function(response) {
+          console.log('Error looking up quote.');
+        },
+      });
+    }
   },
   addToList: function() {
     this.expirations_table.fnAddData([this.symbol,

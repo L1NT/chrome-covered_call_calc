@@ -84,3 +84,14 @@ button {
   background: #4C015F;
   color: #FFFFFF;
 }
+
+div#notifications {
+  position: absolute;
+  display: none;
+  padding: 50px;
+  top: 150px;
+  left: 125px;
+  background-color: paleturquoise;
+  border: 2px solid black;
+  border-radius: 10px;
+}

@@ -5,7 +5,7 @@
 
 var covered_call_calc = {
   // constants
-  SEC_FEE: .003,
+  SEC_FEE: .0001288,
   
   // attributes
   expirations_table: null,
@@ -113,7 +113,7 @@ var covered_call_calc = {
           covered_call_calc.addToList();
           break;
         default:
-          alert('i don\'t work yet');
+          $('div#notifications').text('i don\'t work yet').fadeIn(400).delay(2000).fadeOut(400);
       }
     });
     $('table#expirations a.delete').live('click', function(){
@@ -179,7 +179,7 @@ var covered_call_calc = {
                                       this.expiration.toLocaleDateString(),
                                       '<a class="delete" href="#">delete</a>']);
     
-    alert('call option saved to expirations list');       
+    $('div#notifications').text('call option saved to expirations list').fadeIn(400).delay(2000).fadeOut(400);;       
     this.saveList();
   },
   refreshExpireList: function() {
@@ -306,7 +306,7 @@ var covered_call_calc = {
     });
     chrome.storage.sync.set({settings:settings});
     this.calculate();
-    alert('settings have been saved');
+    $('div#notifications').text('settings have been saved').fadeIn(400).delay(2000).fadeOut(400);;
   },
   
   saveList: function() {

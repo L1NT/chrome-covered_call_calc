@@ -8,6 +8,7 @@ h1 {
 
 h3 {
   text-align: center;
+  margin-after: .25em;
 }
 
 h4 {
@@ -55,6 +56,11 @@ section.calc {
     display: inline-block;
     margin: 2px;
   }
+  
+section#contributors {
+  text-align: center;
+}
+
 .pos {
   background-color: palegreen;
   color: green;

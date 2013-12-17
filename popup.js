@@ -9,7 +9,6 @@ var covered_call_calc = {
   
   // attributes
   expirations_table: null,
-  
   calc_fees: false,
   symbol: '',
   stock_price: 0,
@@ -20,7 +19,8 @@ var covered_call_calc = {
   assigned_commission: 0,
   expiration: new Date(),
 
-  // methods - only one instance of this "class" should exists, negating any benefit of using object.prototype for functions
+  // methods - only one instance of this "class" should exists, negating any
+  // benefit of using object.prototype for functions
   initialize: function() {
     this.restoreStorage();
     
@@ -52,7 +52,7 @@ var covered_call_calc = {
       var jq_input = $(event.currentTarget);
       var value = parseFloat(jq_input.val());
       covered_call_calc[jq_input.attr('name')] = value;
-      jq_input.val(covered_call_calc.round(value));
+      jq_input.val(covered_call_calc._round(value));
       covered_call_calc.calculate();
       return false;
     });
@@ -63,7 +63,7 @@ var covered_call_calc = {
         covered_call_calc.lookupQuote(this.value, function(_quote) {
           var price = '';
           if (_quote.Data != undefined)
-            price = _quote.Data.LastPrice;
+            price = covered_call_calc._round(_quote.Data.LastPrice);
           else {
             console.log('Error looking up quote: ' + _quote.Message);
           }
@@ -176,9 +176,9 @@ var covered_call_calc = {
   },
   addToList: function() {
     this.expirations_table.fnAddData([this.symbol,
-                                      this.round(this.stock_price),
-                                      this.round(this.stock_price),
-                                      this.round(this.strike_price),
+                                      this._round(this.stock_price),
+                                      this._round(this.stock_price),
+                                      this._round(this.strike_price),
                                       this.expiration.toLocaleDateString(),
                                       '<a class="delete" href="#">delete</a>']);
     
@@ -207,14 +207,14 @@ var covered_call_calc = {
       this.option_commission = trans + per_share * this.contracts;
       if ($('input[name="option_sec_fee"]')[0].checked)
         this.option_commission += this.SEC_FEE * this.premium * this.contracts * 100;
-      $('input[name="option_commission"]').val(this.round(this.option_commission));
+      $('input[name="option_commission"]').val(this._round(this.option_commission));
       
       trans = parseFloat($('input[name="assigned_transaction"]').val()) || 0;
       per_share = parseFloat($('input[name="assigned_per_share"]').val()) || 0;
       this.assigned_commission = trans + per_share * this.contracts;
       if ($('input[name="stock_sec_fee"]')[0].checked)
         this.assigned_commission += this.SEC_FEE * this.strike_price * this.contracts * 100;
-      $('input[name="assigned_commission"]').val(this.round(this.assigned_commission));
+      $('input[name="assigned_commission"]').val(this._round(this.assigned_commission));
     }
   },
   calculate: function() {
@@ -232,13 +232,13 @@ var covered_call_calc = {
     var income = this.premium * this.contracts * 100;
     income -= this.option_commission;
     var annualized_return = this._getAnnualizedReturn(income);
-    return [this.round(income), annualized_return];
+    return [this._round(income), annualized_return];
   },
   getTotalIncome: function(_expire) {
     var income = (this.premium + this.strike_price - this.stock_price) * this.contracts * 100;
     income -= this.option_commission + this.assigned_commission;
     var annualized = this._getAnnualizedReturn(income);
-    return [this.round(income), annualized];
+    return [this._round(income), annualized];
   },
   _getAnnualizedReturn: function(_income) {
     if (this.stock_price == 0 || this.contracts == 0)
@@ -246,9 +246,9 @@ var covered_call_calc = {
     var annualized_return = _income/(this.stock_price * this.contracts * 100);
     var days_to_expire = (this.expiration - Date.now())/ 24 / 60 / 60 / 1000;
     annualized_return = annualized_return * (365/days_to_expire) * 100;
-    return this.round(annualized_return);
+    return this._round(annualized_return);
   },
-  round: function(_d) {
+  _round: function(_d) {
     if (isNaN(_d))
       return;
     var negative = false;
@@ -337,7 +337,7 @@ $(document).ready(function() {
     });
   ccc.initialize();
   //TODO: this is a fucking lame fix, and could easily break on a slow machine or with a large amount of storage:
-  // when in doubt, set a timeout!!
+  // "when in doubt, set a timeout!!"
   setTimeout(function() {
     // this trigger was originally placed in-line at the initialize() function's bind method occurs before the checked state gets set... and we thought javascript was single threaded!
     $('input[name="calc_fees"').trigger('change'); 

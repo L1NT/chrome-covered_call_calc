@@ -52,7 +52,8 @@ var covered_call_calc = {
       var jq_input = $(event.currentTarget);
       var value = parseFloat(jq_input.val());
       covered_call_calc[jq_input.attr('name')] = value;
-      jq_input.val(covered_call_calc._round(value));
+      if (jq_input.attr('name') != 'contracts')
+    	jq_input.val(covered_call_calc._round(value));
       covered_call_calc.calculate();
       return false;
     });

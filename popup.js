@@ -5,8 +5,8 @@
 
 var covered_call_calc = {
   // constants
-  SEC_FEE: .0001288,
-  
+  SEC_FEE: 0.0000809,
+
   // attributes
   expirations_table: null,
   calc_fees: false,
@@ -23,7 +23,7 @@ var covered_call_calc = {
   // benefit of using object.prototype for functions
   initialize: function() {
     this.restoreStorage();
-    
+
     this._setExpiration();
     var _expiration = this.expiration;
     if (_expiration < Date.now()){
@@ -47,17 +47,17 @@ var covered_call_calc = {
       });
     });
     $('li#calc').trigger('click');
-            
+
     $('section.calc input').bind('change', function(event) {
       var jq_input = $(event.currentTarget);
       var value = parseFloat(jq_input.val());
       covered_call_calc[jq_input.attr('name')] = value;
       if (jq_input.attr('name') != 'contracts')
-    	jq_input.val(covered_call_calc._round(value));
+    	  jq_input.val(covered_call_calc._round(value));
       covered_call_calc.calculate();
       return false;
     });
-    
+
     $('input.ticker').unbind('change').bind('change', function(){
       $(this).removeClass('neg');
       if (this.value != '') {
@@ -98,17 +98,27 @@ var covered_call_calc = {
       covered_call_calc.saveSettings();
     });
 
-    
+
     $('select').bind('change', function(event) {
       var expire_string = $(this).find('option:selected').text();
       covered_call_calc._setExpiration(expire_string);
       covered_call_calc.calculate();
       return false;
     });
-    
+
     $('input[type="button"]').bind('click', function(event) {
       switch (this.value) {
-        case 'Calculate':
+        case 'Reset':
+          covered_call_calc.symbol = '';
+          covered_call_calc.stock_price = 0;
+          covered_call_calc.strike_price = 0;
+          covered_call_calc.premium = 0;
+          covered_call_calc.contracts = 1;
+          $('input[name=symbol]').val('');
+          $('input[name=stock_price]').val('0.00');
+          $('input[name=strike_price]').val('0.00');
+          $('input[name=premium]').val('0.00');
+          $('input[name=contracts]').val('1');
           covered_call_calc.calculate();
           break;
         case 'Add to List':
@@ -123,7 +133,7 @@ var covered_call_calc = {
       covered_call_calc.saveList();
     });
   }, /* end of initialize() */
- 
+
   _setExpiration: function(_date) {
     if (typeof _date != 'undefined')
       this.expiration = new Date(_date); //can't believe the ECMAscript spec requires that a sting like this get properly plarsed!
@@ -182,8 +192,8 @@ var covered_call_calc = {
                                       this._round(this.strike_price),
                                       this.expiration.toLocaleDateString(),
                                       '<a class="delete" href="#">delete</a>']);
-    
-    $('div#notifications').text('call option saved to expirations list').fadeIn(400).delay(2000).fadeOut(400);;       
+
+    $('div#notifications').text('call option saved to expirations list').fadeIn(400).delay(2000).fadeOut(400);;
     this.saveList();
   },
   refreshExpireList: function() {
@@ -209,7 +219,7 @@ var covered_call_calc = {
       if ($('input[name="option_sec_fee"]')[0].checked)
         this.option_commission += this.SEC_FEE * this.premium * this.contracts * 100;
       $('input[name="option_commission"]').val(this._round(this.option_commission));
-      
+
       trans = parseFloat($('input[name="assigned_transaction"]').val()) || 0;
       per_share = parseFloat($('input[name="assigned_per_share"]').val()) || 0;
       this.assigned_commission = trans + per_share * this.contracts;
@@ -222,12 +232,13 @@ var covered_call_calc = {
     this.calculateFees();
     var call_income = this.getCallIncome();
     var total_income = this.getTotalIncome();
-    
+
     $('div#results span').removeClass();
     $('span#call_income').text('$' + call_income[0]).addClass(call_income[0]<0?'neg':'pos');
     $('span#call_annualized').text(call_income[1] + '%').addClass(call_income[1]<0?'neg':'pos');
     $('span#total_income').text('$' + total_income[0]).addClass(total_income[0]<0?'neg':'pos');
     $('span#total_annualized').text(total_income[1] + '%').addClass(total_income[1]<0?'neg':'pos');
+    covered_call_calc.saveCurrentCalcs();
   },
   getCallIncome: function(_expire) {
     var income = this.premium * this.contracts * 100;
@@ -274,9 +285,24 @@ var covered_call_calc = {
         return a + "." + b;
     }
   },
+
   restoreStorage: function() {
     var ccc = covered_call_calc;
     chrome.storage.sync.get(function(state) {
+      console.dir(state.calcs);
+      if (state.calcs != undefined) {
+        $.each(state.calcs, function(input, value) {
+          if (input == 'call_date') {
+            ccc._setExpiration(value);
+            $('select[name=' + input + ']').val(value);
+          } else {
+            ccc[input] = value;
+            if (input.match(/.*price|premium/))
+              value = ccc._round(value);
+            $('input[name=' + input + ']').val(value);
+          }
+        });
+      }
       if (state.settings != undefined) {
         $('section.settings input').each(function() {
           switch (this.type) {
@@ -286,18 +312,32 @@ var covered_call_calc = {
               this.checked = state.settings[this.name];
               break;
             default:
-              this.value = state.settings[this.name] || null; 
+              this.value = state.settings[this.name] || null;
           }
         });
         ccc.calc_fees = state.settings.calc_fees;
       }
       if (state.expirations != undefined)
         ccc.expirations_table.fnAddData(state.expirations);
+      ccc.calculate();
+    });
+  },
+
+  saveCurrentCalcs: function() {
+    chrome.storage.sync.set({
+      calcs: {
+        symbol: covered_call_calc.symbol,
+        stock_price: covered_call_calc.stock_price,
+        strike_price: covered_call_calc.strike_price,
+        premium: covered_call_calc.premium,
+        contracts: covered_call_calc.contracts,
+        call_date: $('select[name="call_date"]').val()
+      }
     });
   },
   saveSettings: function(event) {
     var settings = {};
-    $('section.settings input').each(function(){
+    $('section.settings input').each(function() {
       switch (this.type) {
         case 'button':
           break;
@@ -306,13 +346,12 @@ var covered_call_calc = {
           break;
         default:
           settings[this.name] = this.value;
-      }        
+      }
     });
     chrome.storage.sync.set({settings:settings});
     this.calculate();
     $('div#notifications').text('settings have been saved').fadeIn(400).delay(2000).fadeOut(400);;
   },
-  
   saveList: function() {
     var data = this.expirations_table.fnGetData();
     if (data.length != 0)
@@ -341,7 +380,7 @@ $(document).ready(function() {
   // "when in doubt, set a timeout!!"
   setTimeout(function() {
     // this trigger was originally placed in-line at the initialize() function's bind method occurs before the checked state gets set... and we thought javascript was single threaded!
-    $('input[name="calc_fees"').trigger('change'); 
+    $('input[name="calc_fees"').trigger('change');
     ccc.refreshExpireList();
   }, '500');
 });

@@ -4,7 +4,7 @@
     <title>Covered Call Calculator</title>
     <link rel="stylesheet" type="text/css" href="jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="main.css" />
-    
+
     <!--
       - JavaScript and HTML must be in separate files: see our Content Security
       - Policy documentation[1] for details and explanation.
@@ -19,7 +19,7 @@
     <header>
       <h1>Covered Call Calculator</h1>
     </header>
-    
+
     <nav>
       <ul>
         <li id="calc">Calc</li>
@@ -28,20 +28,21 @@
         <li id="about">About</li>
       </ul>
     </nav>
-    
+
     <!-- Calc Tab -->
     <section class="calc tab">
-      <label class="ticker" for="ticker">Ticker Symbol: </label><input class="ticker" name="ticker" placeholder="ex. XYZ" /><br />
+      <div class="button_row">
+        <input type="button" value="Reset" /><input type="button" value="Add to List" />
+      </div>
+      <br />
+      <label class="ticker" for="symbol">Ticker Symbol: </label><input class="ticker" name="symbol" placeholder="ex. XYZ" /><br />
       <label for="stock_price">Stock Price: </label><input name="stock_price" placeholder="0.00"/><br />
       <label for="strike_price">Call Strike Price: </label><input name="strike_price" placeholder="0.00" /><br />
       <label for="call_date">Expiration Month: </label><select name="call_date"></select><br />
       <label for="premium">Premium: </label><input type="text" name="premium" placeholder="0.00" /><br />
-      <label for="contracts">Number of Contracts: </label><input type="text" name="contracts" placeholder="1" /><br />  
+      <label for="contracts">Number of Contracts: </label><input type="text" name="contracts" placeholder="1" /><br />
       <label for="option_commission">Commission and Fees for the sale of options(s): </label><input class="commissions" name="option_commission" placeholder="0.00" /><br />
       <label for="assigned_commission">Commission and Fees for the sale of underlying stock, if option is assigned: </label><input class="commissions" name="assigned_commission" placeholder="0.00" /><br />
-      <div class="button_row">
-        <input type="button" value="Calculate" /><input type="button" value="Add to List" />
-      </div>
       <hr />
       <div id="results">
         Call Option(s) Short-Sale Income: <span id="call_income">$0.00</span><br />
@@ -51,7 +52,7 @@
         Annualized Return, if assigned: <span id="total_annualized">0.00%</span>
       </div>
     </section>
-      
+
     <!-- Expiration/Assignment Tab -->
     <section class="expire tab">
       <table id="expirations">
@@ -67,7 +68,7 @@
       </table>
       <br />
     </section>
-    
+
     <section class="settings tab">
       <h3>Settings</h3>
       <input name="calc_fees" type="checkbox" />Calculate commissions &amp; fees<br />
@@ -90,7 +91,7 @@
       <hr />
       <button id="save_settings">Save</button>
     </section>
-    
+
     <section class="about tab">
       <h3>FAQs</h3>
       <section id="faq">
@@ -130,15 +131,15 @@
           <details>
             <summary>Settings Tab</summary>
             This tab allows the user to enter pre-defined commission information that will then be calculated, rather than having to enter this information on the main Calc tab.<br />
-            
+
           </details>
         </details>
       </section>
-      
+
       <h3>How To Contribute</h3>
       <section id="contribute">
         <ul>
-          <li>If you find this extension useful and wish to say 'thank you', please consider buying me a cup of coffee (it's cheap -- I avoid those fancy coffee drinks and only order the brewed $.99 variety): 
+          <li>If you find this extension useful and wish to say 'thank you', please consider buying me a cup of coffee (it's cheap -- I avoid those fancy coffee drinks and only order the brewed $.99 variety):
             <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="text-align: center">
               <input type="hidden" name="cmd" value="_s-xclick">
               <input type="hidden" name="hosted_button_id" value="ZTAR2HUBGPFRS">
@@ -151,15 +152,14 @@
           <li>If you think my idea is good but the execution could be better, <a href="https://github.com/L1NT/chrome-covered-call-calc">download the source code</a> and make it better! (Feel free to submit pull requests, bug reports, and feature requests via Github; any and all contributions will be recognized below.)</li>
         </ul>
       </section>
-      
+
       <h3>Contributors</h3>
       <section id="contributors">
         Luke Jeter (<a href="mailto:luke.jeter@gmail.com">luke.jeter@gmail.com</a>), Lead Developer<br />
-      </section>      
+      </section>
     </section>
-    
+
     <div id="notifications"></div>
 
   </body>
 </html>
-

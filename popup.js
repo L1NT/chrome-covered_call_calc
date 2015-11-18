@@ -45,6 +45,8 @@ var covered_call_calc = {
         else
           $(this).hide();
       });
+      // FIXME: tracker is undefined
+      //covered_call_calc.tracker.sendAppView(jqTarget.text() + 'View');
     });
     $('li#calc').trigger('click');
 
@@ -132,6 +134,17 @@ var covered_call_calc = {
       covered_call_calc.expirations_table.fnDeleteRow($(this).closest('tr')[0]);
       covered_call_calc.saveList();
     });
+
+    /********************* Google Analytics ********************/
+    // You'll usually only ever have to create one service instance.
+    var service = analytics.getService('covered_call_calc_extension');
+    // You can create as many trackers as you want. Each tracker has its own state
+    // independent of other tracker instances.
+    this.tracker = service.getTracker('UA-56798313-4');
+    this.tracker.sendAppView('CalcView');
+    this.calculations = 0;
+    /***********************************************************/
+
   }, /* end of initialize() */
 
   _setExpiration: function(_date) {
@@ -239,6 +252,7 @@ var covered_call_calc = {
     $('span#total_income').text('$' + total_income[0]).addClass(total_income[0]<0?'neg':'pos');
     $('span#total_annualized').text(total_income[1] + '%').addClass(total_income[1]<0?'neg':'pos');
     covered_call_calc.saveCurrentCalcs();
+    this.tracker.sendEvent('Calc', 'calculate', ++this.calculations);
   },
   getCallIncome: function(_expire) {
     var income = this.premium * this.contracts * 100;
